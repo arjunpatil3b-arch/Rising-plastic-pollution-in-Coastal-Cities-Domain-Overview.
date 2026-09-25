@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>COAST//TRACE — Rising Plastic Pollution in Coastal Cities</title>
+<meta name="description" content="A competition-ready data interface exploring plastic pollution and ocean emissions around the world.">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@600;700;800&display=swap');
+:root{
+  --bg:#e9e9e7;
+  --panel:#f4f4f1;
+  --ink:#151515;
+  --muted:#656565;
+  --line:#b8b8b4;
+  --orange:#ff641f;
+  --orange2:#ff8a42;
+  --blue:#163c58;
+  --green:#557b68;
+  --white:#fafaf7;
+  --shadow:0 16px 40px rgba(0,0,0,.08);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;background:var(--bg);color:var(--ink);
+  font-family:"Space Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  overflow-x:hidden;
+}
+body:before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:50;opacity:.18;
+  background-image:linear-gradient(rgba(0,0,0,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(0,0,0,.035) 1px,transparent 1px);
+  background-size:34px 34px;
+}
+a{color:inherit;text-decoration:none}
+button,input,select{font:inherit}
+button{cursor:pointer}
+.wrap{max-width:1500px;margin:auto;padding:0 28px}
+.nav{
+  position:sticky;top:0;z-index:40;background:rgba(233,233,231,.92);
+  backdrop-filter:blur(12px);border-bottom:1px solid var(--line);
+}
+.navin{height:82px;display:grid;grid-template-columns:250px 1fr auto;align-items:center;gap:28px}
+.brand{display:flex;align-items:center;gap:13px;font-weight:700}
+.brandmark{
+  width:44px;height:44px;border:6px solid var(--orange);border-radius:10px;
+  display:grid;place-items:center;position:relative;background:var(--bg);
+}
+.brandmark:before,.brandmark:after{content:"";width:5px;height:5px;background:var(--ink);border-radius:50%;position:absolute;top:14px}
+.brandmark:before{left:11px}.brandmark:after{right:11px}
+.brand small{display:block;color:var(--muted);font-size:10px;letter-spacing:.08em}
+.brand strong{font-family:Syne,sans-serif;font-size:19px;letter-spacing:-.05em}
+.links{display:flex;justify-content:center;gap:30px;font-size:12px}
+.links a{position:relative}
+.links a:after{content:"";position:absolute;left:0;bottom:-8px;width:0;height:2px;background:var(--orange);transition:.25s}
+.links a:hover:after{width:100%}
+.cta{
+  background:var(--orange);border:1px solid var(--orange);padding:14px 20px;
+  border-radius:8px;font-weight:700;font-size:11px;transition:.2s;color:#fff
+}
+.cta:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(255,100,31,.25)}
+.hero{
+  border-bottom:1px solid var(--line);position:relative;overflow:hidden;
+}
+.hero-grid{display:grid;grid-template-columns:1.05fr .95fr;min-height:660px}
+.hero-copy{padding:80px 50px 75px 0;border-right:1px solid var(--line);display:flex;flex-direction:column;justify-content:center}
+.kicker{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--orange);font-weight:700;margin-bottom:22px}
+h1{
+  font-family:Syne,sans-serif;font-size:clamp(58px,7.2vw,125px);
+  line-height:.82;letter-spacing:-.075em;margin:0 0 30px;max-width:850px;
+}
+.hero-copy p{font-size:15px;line-height:1.8;max-width:620px;color:#343434;margin:0 0 30px}
+.hero-actions{display:flex;gap:12px;flex-wrap:wrap}
+.btn{
+  border:1px solid var(--ink);background:transparent;padding:15px 18px;border-radius:7px;font-size:11px;font-weight:700
+}
+.btn.dark{background:var(--ink);color:var(--white)}
+.btn:hover{transform:translateY(-2px)}
+.hero-art{position:relative;min-height:660px;display:grid;place-items:center}
+.orbit{
+  width:min(470px,70%);aspect-ratio:1;border:1px solid #999;border-radius:50%;position:relative;
+  box-shadow:0 0 0 70px rgba(255,255,255,.14),0 0 0 140px rgba(255,255,255,.10)
+}
+.orbit:before,.orbit:after{content:"";position:absolute;border:1px solid #aaa;border-radius:50%}
+.orbit:before{inset:19%}.orbit:after{inset:38%}
+.core{
+  position:absolute;inset:36%;border-radius:22%;background:var(--ink);display:grid;place-items:center;
+  box-shadow:0 0 0 10px var(--orange),0 0 0 12px var(--ink)
+}
+.core:after{content:"";width:22px;height:22px;background:var(--orange);border-radius:50%;box-shadow:44px 0 0 var(--orange)}
+.satellite{position:absolute;width:18px;height:18px;background:var(--orange);border-radius:4px}
+.s1{top:8%;left:50%}.s2{right:11%;top:43%}.s3{bottom:9%;left:28%}
+.hero-note{position:absolute;left:32px;bottom:34px;font-size:10px;color:var(--muted);line-height:1.7}
+.hero-code{position:absolute;right:25px;top:28px;font-size:10px;writing-mode:vertical-rl;color:#777;letter-spacing:.16em}
+
+.ticker{border-bottom:1px solid var(--line);overflow:hidden;white-space:nowrap}
+.ticker span{display:inline-block;padding:14px 0;font-size:10px;letter-spacing:.12em;text-transform:uppercase;animation:marquee 22s linear infinite}
+@keyframes marquee{to{transform:translateX(-40%)}}
+.section{padding:56px 0;border-bottom:1px solid var(--line)}
+#global{padding-bottom:28px}
+#explorer{padding-top:28px}
+.section-head{display:flex;justify-content:space-between;gap:30px;align-items:end;margin-bottom:34px}
+.eyebrow{font-size:10px;color:var(--orange);font-weight:700;letter-spacing:.12em}
+.section h2{font-family:Syne,sans-serif;font-size:clamp(34px,5vw,72px);letter-spacing:-.06em;line-height:.9;margin:10px 0 0}
+.section-head p{max-width:470px;color:var(--muted);font-size:12px;line-height:1.7;margin:0}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--line);border-left:1px solid var(--line)}
+.metric{min-height:190px;padding:25px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);background:rgba(250,250,247,.35)}
+.metric .n{font-family:Syne,sans-serif;font-size:46px;letter-spacing:-.06em;margin:20px 0 10px}
+.metric .l{font-size:10px;text-transform:uppercase;color:var(--muted);line-height:1.5}
+.metric .tag{font-size:9px;padding:5px 8px;border:1px solid var(--line);border-radius:20px;display:inline-block}
+.split{display:grid;grid-template-columns:1fr;gap:0;border:1px solid var(--line)}
+.panel{padding:30px;background:rgba(250,250,247,.52);min-width:0;overflow:hidden}
+.panel + .panel{border-left:0;border-top:1px solid var(--line)}
+.panel-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px}
+.panel-title h3{font-family:Syne,sans-serif;font-size:23px;margin:0;letter-spacing:-.04em}
+.panel-title span{font-size:9px;color:var(--muted);text-transform:uppercase}
+#regionChart{display:block;width:100%;max-width:100%;height:auto}
+.chartbox{height:420px;max-height:420px;position:relative;overflow:auto;border:1px solid var(--line);background:#efefec}
+.chartbox canvas{display:block;width:100%}
+.chart-controls{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.chip{border:1px solid var(--line);background:transparent;padding:8px 11px;border-radius:20px;font-size:9px}
+.chip.active,.chip:hover{background:var(--ink);color:var(--white);border-color:var(--ink)}
+.explain{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--line);margin-top:25px}
+.explain article{padding:20px;border-right:1px solid var(--line)}
+.explain article:last-child{border-right:0}
+.explain b{font-family:Syne,sans-serif;font-size:19px}
+.explain p{font-size:10px;line-height:1.7;color:var(--muted)}
+.searchbar{display:grid;grid-template-columns:1fr 150px;gap:10px;margin-bottom:14px}
+.searchbar input,.searchbar select{
+  background:var(--white);border:1px solid var(--line);padding:13px 14px;outline:none;border-radius:5px;font-size:11px
+}
+.searchbar input:focus{border-color:var(--ink)}
+.tablewrap{max-height:540px;overflow:auto;border:1px solid var(--line);background:var(--white)}
+table{width:100%;border-collapse:collapse;font-size:10px}
+th,td{text-align:left;padding:12px 13px;border-bottom:1px solid #ddd}
+th{position:sticky;top:0;background:var(--ink);color:white;font-size:9px;text-transform:uppercase;letter-spacing:.08em;z-index:2}
+td:last-child,th:last-child{text-align:right}
+tbody tr:hover{background:#f0f0ec}
+.pill{font-size:8px;border:1px solid var(--line);padding:4px 7px;border-radius:20px}
+.coverage{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-top:18px}
+.coverage div{border:1px solid var(--line);padding:14px;background:rgba(255,255,255,.35)}
+.coverage strong{display:block;font-family:Syne,sans-serif;font-size:25px}
+.coverage span{font-size:8px;color:var(--muted);text-transform:uppercase}
+.citygrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.city{border:1px solid var(--line);background:var(--white);padding:22px;position:relative;min-height:190px}
+.city:before{content:"";position:absolute;top:0;left:0;right:0;height:4px;background:var(--orange)}
+.city .rank{font-size:9px;color:var(--muted)}
+.city h3{font-family:Syne,sans-serif;font-size:24px;margin:16px 0 5px;letter-spacing:-.04em}
+.city p{font-size:10px;line-height:1.6;color:var(--muted)}
+.city .bar{height:5px;background:#ddd;margin-top:18px}.city .bar i{display:block;height:100%;background:var(--orange)}
+.method{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--line)}
+.method article{padding:30px;min-height:200px}.method article+article{border-left:1px solid var(--line)}
+.method h3{font-family:Syne,sans-serif;font-size:25px;margin:0 0 12px}
+.method p{font-size:11px;line-height:1.8;color:var(--muted)}
+.footer{padding:55px 0}
+.footerin{display:flex;justify-content:space-between;gap:30px;align-items:start}
+.footer strong{font-family:Syne,sans-serif;font-size:30px}
+.footer p{max-width:540px;color:var(--muted);font-size:10px;line-height:1.8}
+.source{font-size:9px;color:var(--muted);line-height:1.6;margin-top:20px}
+.reveal{opacity:0;transform:translateY(18px);transition:.7s ease}.reveal.show{opacity:1;transform:none}
+
+/* Assistant dock */
+.assist-root{position:fixed;right:22px;bottom:22px;z-index:9999;font-family:"Space Mono",monospace;pointer-events:auto}
+.assist-fab{
+  width:74px;height:74px;border:0;border-radius:22px;padding:0;
+  background:transparent;position:relative;
+}
+.mini{
+  position:relative;overflow:hidden;flex:0 0 auto;
+  background:linear-gradient(160deg,#f7f7f4,#dcdcd8);
+}
+.assist-fab .mini{
+  width:74px;height:74px;border-radius:20px;
+  box-shadow:0 14px 30px rgba(0,0,0,.18),0 0 0 3px #fff;
+}
+.assist-head .mini{
+  width:42px;height:42px;border-radius:12px;
+}
+.mini-ring{
+  position:absolute;inset:8px;border-radius:14px;
+  background:linear-gradient(135deg,#ff9a3a,#ff641f);
+  padding:7px;
+}
+.assist-head .mini-ring{inset:5px;padding:5px;border-radius:10px}
+.mini-face{
+  width:100%;height:100%;border-radius:9px;
+  background:
+    linear-gradient(rgba(255,180,80,.12) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,180,80,.12) 1px,transparent 1px),
+    #1b0f08;
+  background-size:8px 8px,8px 8px,auto;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.mini-face i{width:8px;height:8px;border-radius:50%;background:#fff;box-shadow:0 0 8px #fff;display:block}
+.assist-head .mini-face i{width:6px;height:6px}
+.ping{
+  position:absolute;top:-4px;right:-4px;width:16px;height:16px;border-radius:50%;
+  background:#2f9e44;border:3px solid #fff;animation:pulse 1.8s infinite;
+}
+@keyframes pulse{50%{box-shadow:0 0 0 8px rgba(47,158,68,.12)}}
+.assist-panel{
+  position:absolute;right:0;bottom:88px;width:min(380px,calc(100vw - 32px));
+  height:560px;background:#f7f7f4;border:1px solid var(--line);
+  border-radius:18px;box-shadow:0 24px 60px rgba(0,0,0,.18);
+  display:none;flex-direction:column;overflow:hidden;
+}
+.assist-root.open .assist-panel{display:flex}
+.assist-root.open .assist-fab{visibility:hidden;pointer-events:none}
+.assist-head{
+  display:flex;align-items:center;gap:12px;padding:14px 14px 12px;
+  border-bottom:1px solid var(--line);background:#fff;
+}
+.assist-head .who{flex:1}
+.assist-head strong{display:block;font-family:Syne,sans-serif;font-size:16px}
+.assist-head small{color:var(--muted);font-size:9px;letter-spacing:.08em}
+.assist-head small.busy{color:var(--orange)}
+.assist-close{
+  border:1px solid var(--ink);background:var(--ink);color:#fff;border-radius:8px;
+  font-size:10px;font-weight:700;letter-spacing:.06em;padding:8px 10px;min-width:64px
+}
+.assist-close:hover{background:#000}
+.assist-exit{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:8px 12px 10px;border-top:1px solid var(--line);background:#fff;
+}
+.assist-exit p{margin:0;font-size:9px;color:var(--muted);letter-spacing:.06em}
+.assist-exit button{
+  border:1px solid var(--ink);background:transparent;padding:8px 12px;border-radius:8px;
+  font-size:10px;font-weight:700
+}
+.assist-exit button:hover{background:var(--ink);color:#fff}
+.assist-log{flex:1;overflow:auto;padding:14px;display:flex;flex-direction:column;gap:10px}
+.msg{max-width:92%;padding:11px 12px;border-radius:12px;font-size:11px;line-height:1.65;white-space:pre-wrap}
+.msg.bot{background:#fff;border:1px solid var(--line);align-self:flex-start}
+.msg.user{background:var(--ink);color:#fff;align-self:flex-end}
+.typing{align-self:flex-start;display:flex;gap:4px;padding:10px 12px;background:#fff;border:1px solid var(--line);border-radius:12px}
+.typing b{width:6px;height:6px;border-radius:50%;background:#999;animation:dot 1s infinite}
+.typing b:nth-child(2){animation-delay:.15s}.typing b:nth-child(3){animation-delay:.3s}
+@keyframes dot{0%,80%,100%{opacity:.25;transform:translateY(0)}40%{opacity:1;transform:translateY(-3px)}}
+.suggest{display:flex;flex-wrap:wrap;gap:6px;padding:0 14px 10px}
+.suggest button{
+  border:1px solid var(--line);background:#fff;padding:7px 9px;border-radius:99px;font-size:9px
+}
+.suggest button:hover{border-color:var(--ink)}
+.assist-form{display:grid;grid-template-columns:1fr 72px;gap:8px;padding:12px;border-top:1px solid var(--line);background:#fff;position:relative;z-index:2}
+.assist-form input{border:1px solid var(--line);border-radius:10px;padding:12px 12px;outline:none;font-size:11px}
+.assist-form input:focus{border-color:var(--ink)}
+.assist-form button{border:0;background:var(--orange);color:#fff;border-radius:10px;font-weight:700;min-height:44px}
+
+@media(max-width:1050px){
+ .navin{grid-template-columns:auto auto}.links{display:none}
+ .hero-grid{grid-template-columns:1fr}.hero-copy{border-right:0;border-bottom:1px solid var(--line);padding:70px 0}.hero-art{min-height:520px}
+ .grid4{grid-template-columns:repeat(2,1fr)}.citygrid{grid-template-columns:1fr 1fr}.coverage{grid-template-columns:repeat(3,1fr)}
+ .panel+.panel{border-left:0;border-top:1px solid var(--line)}
+}
+@media(max-width:650px){
+ .wrap{padding:0 16px}.navin{height:70px}.cta{padding:11px 12px}
+ h1{font-size:58px}.hero-art{min-height:390px}.orbit{width:260px}
+ .grid4,.citygrid,.method{grid-template-columns:1fr}.explain{grid-template-columns:1fr}
+ .explain article{border-right:0;border-bottom:1px solid var(--line)}.coverage{grid-template-columns:repeat(2,1fr)}
+ .section{padding:60px 0}.section-head{display:block}.section-head p{margin-top:18px}
+ .assist-panel{height:70vh}
+}
+body.boot{overflow:hidden}
+body.boot .assist-root{visibility:hidden;pointer-events:none}
+.boot-screen{
+  position:fixed;inset:0;z-index:10000;background:var(--bg);color:var(--ink);
+  display:flex;flex-direction:column;overflow:hidden;
+}
+.boot-screen:before{
+  content:"";position:absolute;inset:0;opacity:.18;pointer-events:none;
+  background-image:linear-gradient(rgba(0,0,0,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(0,0,0,.035) 1px,transparent 1px);
+  background-size:34px 34px;
+}
+.boot-screen.off{opacity:0;transform:translateY(-12px);pointer-events:none;transition:.55s ease}
+.boot-top,.boot-bot{
+  position:relative;z-index:1;display:flex;justify-content:space-between;align-items:center;
+  padding:22px 28px;border-bottom:1px solid var(--line);font-size:10px;letter-spacing:.12em;text-transform:uppercase;
+}
+.boot-bot{border-bottom:0;border-top:1px solid var(--line)}
+.boot-mid{
+  position:relative;z-index:1;flex:1;display:grid;place-items:center;padding:30px 20px;
+}
+.boot-card{max-width:820px;width:min(820px,100%);text-align:center}
+.boot-kicker{color:var(--orange);font-size:11px;font-weight:700;letter-spacing:.16em;margin-bottom:18px}
+.boot-card h1{
+  font-family:Syne,sans-serif;font-size:clamp(48px,8vw,96px);line-height:.82;
+  letter-spacing:-.07em;margin:0 0 22px;
+}
+.boot-card p{max-width:560px;margin:0 auto 28px;color:#343434;font-size:13px;line-height:1.8}
+.boot-mark{
+  width:58px;height:58px;border:7px solid var(--orange);border-radius:12px;margin:0 auto 22px;
+  display:grid;place-items:center;position:relative;background:var(--bg);
+}
+.boot-mark:before,.boot-mark:after{content:"";width:6px;height:6px;background:var(--ink);border-radius:50%;position:absolute;top:16px}
+.boot-mark:before{left:13px}.boot-mark:after{right:13px}
+.boot-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.boot-go{
+  background:var(--orange);border:1px solid var(--orange);color:#fff;padding:16px 22px;
+  border-radius:8px;font-weight:700;font-size:12px;letter-spacing:.08em;
+}
+.boot-go:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(255,100,31,.25)}
+.boot-meta{border:1px solid var(--line);background:transparent;padding:16px 22px;border-radius:8px;font-size:11px;font-weight:700}
+.boot-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin-top:34px;border:1px solid var(--line)}
+.boot-stats div{padding:16px 10px;border-right:1px solid var(--line)}
+.boot-stats div:last-child{border-right:0}
+.boot-stats b{display:block;font-family:Syne,sans-serif;font-size:22px}
+.boot-stats span{display:block;margin-top:6px;font-size:8px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase}
+@media(max-width:650px){
+  .boot-top,.boot-bot{padding:16px}
+  .boot-stats{grid-template-columns:1fr}
+  .boot-stats div{border-right:0;border-bottom:1px solid var(--line)}
+}
+</style>
+</head>
+<body class="boot">
+<div class="boot-screen" id="bootScreen">
+  <div class="boot-top">
+    <span>INNOVATEX // TECHFEST // IIT BOMBAY</span>
+    <span>SYSTEM 01 / 2026</span>
+  </div>
+  <div class="boot-mid">
+    <div class="boot-card">
+      <div class="boot-mark"></div>
+      <div class="boot-kicker">STARTUP / COASTAL DATA INTERFACE</div>
+      <h1>COAST//<br>TRACE</h1>
+      <p>A visual briefing on rising plastic pollution in coastal cities. Enter the dashboard to read global signals, search a country, and ask TRACE.</p>
+      <div class="boot-actions">
+        <button class="boot-go" id="bootEnter" type="button">ENTER DASHBOARD</button>
+        <button class="boot-meta" id="bootSkip" type="button">SKIP INTRO</button>
+      </div>
+      <div class="boot-stats">
+        <div><b>350M t</b><span>Plastic waste / year</span></div>
+        <div><b>1–2M t</b><span>Estimated ocean input</span></div>
+        <div><b>2026</b><span>Dashboard year</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="boot-bot">
+    <span>MADE BY ARJUN PATIL</span>
+    <span>PRESS ENTER TO BEGIN</span>
+  </div>
+</div>
+<nav class="nav">
+  <div class="wrap navin">
+    <a class="brand" href="#top">
+      <span class="brandmark"></span>
+      <span><small>INNOVATEX // IIT BOMBAY</small><strong>COAST//TRACE</strong></span>
+    </a>
+    <div class="links">
+      <a href="#overview">Overview</a><a href="#global">Global Data</a><a href="#explorer">Explorer</a><a href="#cities">Coastal Lens</a><a href="#method">Method</a>
+    </div>
+    <a class="cta" href="#explorer">EXPLORE DATA</a>
+  </div>
+</nav>
+<main id="top">
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div class="hero-copy reveal">
+      <div class="kicker">DOMAIN OVERVIEW / 01</div>
+      <h1>PLASTIC<br>POLLUTION<br>IS MOVING<br>ASHORE.</h1>
+      <p>COAST//TRACE turns a global environmental problem into a readable decision interface — connecting mismanaged plastic, river pathways and coastal exposure without burying the user in technical jargon.</p>
+      <div class="hero-actions">
+        <a class="btn dark" href="#global">VIEW GLOBAL SIGNAL</a>
+        <a class="btn" href="#explorer">SEARCH A PLACE</a>
+        <button class="btn" type="button" id="openAssistHero">ASK TRACE BOT</button>
+      </div>
+    </div>
+    <div class="hero-art reveal">
+      <div class="orbit"><div class="core"></div><i class="satellite s1"></i><i class="satellite s2"></i><i class="satellite s3"></i></div>
+      <div class="hero-code">COASTAL SYSTEM / DATA / RESPONSE / 2026</div>
+      <div class="hero-note">A visual research prototype<br>built for InnovateX — Techfest, IIT Bombay.<br>Made by Arjun Patil</div>
+    </div>
+  </div>
+</section>
+<div class="ticker"><span>GLOBAL PLASTIC SIGNAL • RIVERINE PATHWAYS • COASTAL CITIES • WASTE MANAGEMENT • DATA-LED ACTION • GLOBAL PLASTIC SIGNAL • RIVERINE PATHWAYS • COASTAL CITIES •</span></div>
+<section class="section" id="overview">
+<div class="wrap">
+  <div class="section-head reveal">
+    <div><div class="eyebrow">01 / THE SIGNAL</div><h2>THE PROBLEM<br>AT A GLANCE.</h2></div>
+    <p>The numbers below establish scale. They are intentionally separated from the detailed explorer so a first-time visitor can understand the problem before interacting with the data.</p>
+  </div>
+  <div class="grid4 reveal">
+    <div class="metric"><span class="tag">GLOBAL / ANNUAL</span><div class="n">350M t</div><div class="l">Plastic waste generated worldwide, approximately.</div></div>
+    <div class="metric"><span class="tag">OCEAN / ANNUAL</span><div class="n">1–2M t</div><div class="l">Recent estimates of plastic entering the oceans each year.</div></div>
+    <div class="metric"><span class="tag">2026 / ENVIRONMENT</span><div class="n">72M t</div><div class="l">Earth Action estimate of plastic mismanaged into the environment in 2026.</div></div>
+    <div class="metric"><span class="tag">SYSTEM</span><div class="n">56%</div><div class="l">Share of the latest national inventory attributed to Asia on this 2026 dashboard.</div></div>
+  </div>
+  <div class="explain reveal">
+    <article><b>01 — Waste</b><p>Plastic becomes a pollution problem when it is not securely collected, recycled, treated or contained.</p></article>
+    <article><b>02 — Pathway</b><p>Rainfall, rivers, terrain and distance to coastlines influence whether mismanaged waste can reach the sea.</p></article>
+    <article><b>03 — Coast</b><p>Coastal cities sit at the final interface between land-based waste systems and marine ecosystems.</p></article>
+  </div>
+</div>
+</section>
+<section class="section" id="global">
+<div class="wrap">
+  <div class="section-head reveal">
+    <div><div class="eyebrow">02 / GLOBAL DATA</div><h2>ONE PLANET.<br>MANY SIGNALS.</h2></div>
+    <p>Use the charts as a visual briefing. Hover or tap bars to inspect a value. The global view separates regional scale from country-level detail.</p>
+  </div>
+  <div class="split reveal">
+    <div class="panel">
+      <div class="panel-title"><h3>Regional share of environmental emissions</h3><span>2026 briefing / % of global</span></div>
+      <canvas id="regionChart" width="760" height="430"></canvas>
+      <div class="source">Source series: Cottom et al. (2024) via Our World in Data (updated Jan 2026). Country ranking uses the latest complete published inventory, shown here as the 2026 briefing. Earth Action (2026) estimates about 72 million tonnes of plastic will be mismanaged into the environment this year.</div>
+    </div>
+    <div class="panel">
+      <div class="panel-title"><h3>Top country signals</h3><span>2026 briefing / global share</span></div>
+      <div class="chart-controls">
+        <button class="chip active" data-top="10">TOP 10</button>
+        <button class="chip" data-top="20">TOP 20</button>
+        <button class="chip" data-top="all">ALL REPORTED</button>
+      </div>
+      <div class="chartbox"><canvas id="countryChart" width="780" height="360"></canvas></div>
+      <div class="source">This is a country-level share from the latest complete published inventory (Cottom et al. 2024 / OWID Jan 2026), presented as the 2026 briefing. It is not a live beach sensor.</div>
+    </div>
+  </div>
+</div>
+</section>
+<section class="section" id="explorer">
+<div class="wrap">
+  <div class="section-head reveal">
+    <div><div class="eyebrow">03 / GLOBAL EXPLORER</div><h2>FIND<br>YOUR PLACE.</h2></div>
+    <p>Search any country or region in the embedded dataset. Sorting and filtering are designed for a newcomer: type a name, select a region, then read the one-line explanation.</p>
+  </div>
+  <div class="panel reveal" style="border:1px solid var(--line)">
+    <div class="searchbar">
+      <input id="search" placeholder="Search a country or region… e.g. India, Brazil, Fiji">
+      <select id="regionFilter">
+        <option value="all">ALL REGIONS</option>
+        <option>Asia</option><option>Africa</option><option>Europe</option><option>North America</option><option>South America</option><option>Oceania</option><option>Other</option>
+      </select>
+    </div>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>Place</th><th>Region</th><th>2026 briefing share</th><th>Interpretation</th></tr></thead>
+        <tbody id="dataRows"></tbody>
+      </table>
+    </div>
+    <div class="coverage">
+      <div><strong id="reportedCount">0</strong><span>Reported places loaded</span></div>
+      <div><strong>2026</strong><span>Dashboard year</span></div>
+      <div><strong>CC BY</strong><span>OWID chart license</span></div>
+      <div><strong>200+</strong><span>Source chart coverage</span></div>
+      <div><strong>GLOBAL</strong><span>Country + region lens</span></div>
+      <div><strong>SEARCH</strong><span>Instant filtering</span></div>
+    </div>
+  </div>
+</div>
+</section>
+<section class="section" id="cities">
+<div class="wrap">
+  <div class="section-head reveal">
+    <div><div class="eyebrow">04 / COASTAL CITY LENS</div><h2>FROM COUNTRY<br>TO CITY.</h2></div>
+    <p>A competition prototype should make the abstract problem tangible. These city cards connect recognizable coastal systems to the country-level signal without pretending that a national value is a city measurement.</p>
+  </div>
+  <div class="citygrid reveal">
+    <article class="city"><span class="rank">01 / SOUTH ASIA</span><h3>Mumbai</h3><p>Urban drainage, monsoon runoff and shoreline pressure make waste leakage a critical coastal-system question.</p><div class="bar"><i style="width:86%"></i></div></article>
+    <article class="city"><span class="rank">02 / SOUTHEAST ASIA</span><h3>Manila</h3><p>Dense coastal settlement and river-connected waste pathways make source interception especially important.</p><div class="bar"><i style="width:94%"></i></div></article>
+    <article class="city"><span class="rank">03 / EAST ASIA</span><h3>Shanghai</h3><p>A major coastal economic hub where river systems and urban waste management meet a large marine boundary.</p><div class="bar"><i style="width:72%"></i></div></article>
+    <article class="city"><span class="rank">04 / EAST ASIA</span><h3>Jakarta</h3><p>Low-lying urban districts, waterways and coastal exposure create a strong case for upstream interception.</p><div class="bar"><i style="width:82%"></i></div></article>
+    <article class="city"><span class="rank">05 / WEST AFRICA</span><h3>Lagos</h3><p>A rapidly growing coastal city where drainage, collection systems and shoreline resilience interact.</p><div class="bar"><i style="width:61%"></i></div></article>
+    <article class="city"><span class="rank">06 / SOUTH AMERICA</span><h3>Rio de Janeiro</h3><p>Urban watersheds, beaches and dense development illustrate how land-based waste can become a coastal issue.</p><div class="bar"><i style="width:42%"></i></div></article>
+  </div>
+  <div class="source reveal">City cards are qualitative design examples for the prototype. Their bars are interface indicators, not measured city pollution scores.</div>
+</div>
+</section>
+<section class="section" id="method">
+<div class="wrap">
+  <div class="section-head reveal">
+    <div><div class="eyebrow">05 / METHOD</div><h2>MAKE THE DATA<br>EASY TO TRUST.</h2></div>
+    <p>For a competition jury, clarity about the data is as important as the interface. This panel explains exactly what the main number means — and what it does not mean.</p>
+  </div>
+  <div class="method reveal">
+    <article>
+      <h3>What is measured?</h3>
+      <p>This 2026 dashboard shows each country’s share of global macroplastic emissions to the environment, using the latest complete published national inventory (Cottom et al. 2024, Our World in Data update January 2026). Earth Action’s 2026 Plastic Overshoot estimate puts mismanaged environmental leakage at about 72 million tonnes this year. Annual ocean input is still estimated at 1–2 million tonnes. These are models, not live beach sensors.</p>
+    </article>
+    <article>
+      <h3>How should it be used?</h3>
+      <p>Use the values to identify broad geographic signals and then investigate local waste systems, river basins, drainage, collection coverage and coastal conditions before designing an intervention.</p>
+    </article>
+  </div>
+  <div class="source reveal">
+    2026 briefing notes: Earth Action estimates about 227 million tonnes of packaging, textile and household plastic waste and about 72 million tonnes mismanaged into the environment in 2026. The country ranking still uses the latest complete scientific national inventory (Cottom et al. 2024 / OWID January 2026) because no full official 2026 country-by-country ocean table has been published. Ocean-input reviews still put sea leakage around 1–2 million tonnes a year.
+  </div>
+</div>
+</section>
+</main>
+<footer class="footer">
+<div class="wrap footerin">
+  <div><strong>COAST//TRACE</strong><p>Rising plastic pollution in coastal cities — a visual data prototype for InnovateX, Techfest, IIT Bombay.</p><p>Made by Arjun Patil</p></div>
+  <div style="text-align:right"><div class="eyebrow">BUILD / MEASURE / INTERVENE</div><p>Single-file HTML • Responsive • No framework • Interactive charts • Searchable global explorer</p></div>
+</div>
+</footer>
+
+<div class="assist-root" id="assistRoot">
+  <div class="assist-panel" role="dialog" aria-label="TRACE assistant">
+    <div class="assist-head">
+      <div class="mini" style="width:42px;height:42px;border-radius:12px;box-shadow:none">
+        <div class="mini-ring" style="inset:5px;padding:5px"><div class="mini-face"><i></i><i></i></div></div>
+      </div>
+      <div class="who"><strong>TRACE</strong><small>COASTAL DATA ASSISTANT • ONLINE</small></div>
+      <button class="assist-close" id="assistClose" type="button" aria-label="Close assistant">CLOSE</button>
+    </div>
+    <div class="assist-log" id="assistLog"></div>
+    <div class="suggest" id="assistSuggest"></div>
+    <form class="assist-form" id="assistForm">
+      <input id="assistInput" autocomplete="off" placeholder="Ask about India, rivers, Mumbai…">
+      <button type="submit" id="assistGo">GO</button>
+    </form>
+    <div class="assist-exit">
+      <p>PRESS ESC OR CLOSE TO EXIT</p>
+      <button type="button" id="assistCloseFoot">CLOSE CHAT</button>
+    </div>
+  </div>
+  <button class="assist-fab" id="assistFab" aria-label="Open TRACE assistant">
+    <span class="ping"></span>
+    <div class="mini"><div class="mini-ring"><div class="mini-face"><i></i><i></i></div></div></div>
+  </button>
+</div>
+
+<script>
+const DATA = [
+["India","Asia",17.8],["Nigeria","Africa",6.78],["Indonesia","Asia",6.43],["China","Asia",5.39],["Pakistan","Asia",4.93],
+["Bangladesh","Asia",3.36],["Russia","Europe",3.27],["Brazil","South America",2.77],["Thailand","Asia",1.91],["Democratic Republic of Congo","Africa",1.85],
+["Philippines","Asia",1.57],["Egypt","Africa",1.55],["Iraq","Asia",1.54],["Tanzania","Africa",1.49],["Mexico","North America",1.47],
+["Vietnam","Asia",1.45],["Myanmar","Asia",1.39],["Ethiopia","Africa",1.25],["Uganda","Africa",1.19],["South Africa","Asia",1.17],
+["Kenya","Africa",1.16],["Iran","Asia",1.08],["Angola","Africa",1.06],["Sudan","Africa",1.02],["Turkey","Asia",0.93],
+["Afghanistan","Asia",0.88],["Cameroon","Africa",0.83],["Ukraine","Europe",0.8],["Cambodia","Asia",0.79],["Cote d'Ivoire","Africa",0.76],
+["Uzbekistan","Asia",0.76],["Ghana","Africa",0.74],["Morocco","Africa",0.74],["Algeria","Africa",0.73],["Argentina","South America",0.67],
+["North Korea","Asia",0.66],["Syria","Asia",0.63],["Yemen","Asia",0.63],["Mozambique","Africa",0.62],["Sri Lanka","Asia",0.53],
+["Peru","South America",0.52],["Guatemala","North America",0.51],["Venezuela","South America",0.48],["Kazakhstan","Asia",0.46],["Nepal","Asia",0.46],
+["Haiti","North America",0.44],["Somalia","Africa",0.43],["Chad","Africa",0.41],["Senegal","Africa",0.41],["South Sudan","Asia",0.41],
+["Zambia","Africa",0.41],["Mali","Africa",0.39],["Rwanda","Africa",0.39],["Malaysia","Asia",0.38],["Madagascar","Africa",0.37],
+["Burkina Faso","Africa",0.36],["Malawi","Africa",0.33],["Benin","Africa",0.32],["Zimbabwe","Africa",0.31],["Paraguay","South America",0.3],
+["Tajikistan","Asia",0.3],["Colombia","South America",0.29],["Burundi","Africa",0.28],["Romania","Europe",0.27],["Papua New Guinea","Africa",0.25],
+["Tunisia","Africa",0.25],["Honduras","North America",0.24],["Jordan","Asia",0.24],["Laos","Asia",0.24],["Serbia","Europe",0.24],
+["Kyrgyzstan","Asia",0.23],["Niger","Africa",0.23],["Nicaragua","North America",0.19],["Togo","Africa",0.19],["Azerbaijan","Asia",0.17],
+["Ecuador","South America",0.17],["El Salvador","North America",0.17],["Guinea","Africa",0.16],["Mauritania","Africa",0.16],["Bolivia","South America",0.15],
+["Congo","Africa",0.15],["Dominican Republic","Africa",0.15],["Turkmenistan","Asia",0.14],["Liberia","Africa",0.12],["Sierra Leone","Africa",0.12],
+["Belarus","Europe",0.11],["Bulgaria","Europe",0.1],["Central African Republic","Africa",0.1],["Cuba","North America",0.09],["Lesotho","Africa",0.09],
+["United States","Asia",0.09],["Eritrea","Africa",0.08],["Lebanon","Asia",0.08],["Libya","Africa",0.08],["Panama","North America",0.08],
+["Namibia","Africa",0.07],["Bosnia and Herzegovina","Africa",0.06],["Botswana","Africa",0.06],["Equatorial Guinea","Africa",0.06],["Gambia","Africa",0.06],
+["Mongolia","Asia",0.06],["Costa Rica","North America",0.05],["Georgia","Asia",0.05],["Jamaica","North America",0.05],["Palestine","Asia",0.05],
+["Albania","Europe",0.04],["Djibouti","Africa",0.04],["Eswatini","Africa",0.04],["Guinea-Bissau","Africa",0.04],["Armenia","Asia",0.03],
+["East Timor","Asia",0.03],["Moldova","Europe",0.03],["North Macedonia","Asia",0.03],["Chile","South America",0.02],["Comoros","Africa",0.02],
+["France","Europe",0.02],["Gabon","Africa",0.02],["Solomon Islands","Africa",0.02],["Canada","North America",0.01],["Germany","Europe",0.01],
+["Italy","Europe",0.01],["Japan","Asia",0.01],["Spain","Europe",0.01],["United Kingdom","Asia",0.01],["Australia","Oceania",0.0],
+["Norway","Europe",0.0],["Singapore","Asia",0.0],["Sweden","Europe",0.0]
+];
+const CITIES = {
+  mumbai:{city:"Mumbai",country:"India",note:"Monsoon runoff, dense drainage and a long shoreline make leakage control urgent. On this 2026 dashboard, India is the largest national source at 17.80% of global macroplastic emissions to the environment."},
+  manila:{city:"Manila",country:"Philippines",note:"River-connected waste pathways make source interception important. The Philippines is 1.57% of the latest published inventory on this 2026 dashboard."},
+  shanghai:{city:"Shanghai",country:"China",note:"A huge coastal economy sitting on river systems. China is 5.39% of the latest published inventory on this 2026 dashboard."},
+  jakarta:{city:"Jakarta",country:"Indonesia",note:"Low-lying districts and waterways raise the cost of unmanaged waste. Indonesia is 6.43% of the latest published inventory on this 2026 dashboard, third worldwide."},
+  lagos:{city:"Lagos",country:"Nigeria",note:"Fast coastal growth plus drainage pressure. Nigeria is 6.78% of the latest published inventory on this 2026 dashboard, second worldwide."},
+  "rio de janeiro":{city:"Rio de Janeiro",country:"Brazil",note:"Beaches, watersheds and dense development show how land waste can become a coastal issue. Brazil is 2.77% of the latest published inventory on this 2026 dashboard."},
+  rio:{city:"Rio de Janeiro",country:"Brazil",note:"Beaches, watersheds and dense development show how land waste can become a coastal issue. Brazil is 2.77% of the latest published inventory on this 2026 dashboard."}
+};
+const REGIONS = [["Asia",55.65],["Africa",29.93],["South America",5.37],["Europe",5.09],["North America",3.61],["Oceania",0.31]];
+
+let ACTIVE_DATA = DATA.slice();
+const SKIP_PLACES=new Set(["Asia","Africa","Europe","North America","South America","Oceania","World","Earth","European Union","High-income countries","Low-income countries","Upper-middle-income countries","Lower-middle-income countries"]);
+let unique = [...new Map(ACTIVE_DATA.filter(d=>!SKIP_PLACES.has(d[0])).map(d=>[d[0],d])).values()].sort((a,b)=>b[2]-a[2]);
+const rows=document.getElementById("dataRows");
+const search=document.getElementById("search");
+const filter=document.getElementById("regionFilter");
+function interpretation(v){
+  if(v>=5) return "Very large share of the global signal";
+  if(v>=1) return "Large country-level contribution";
+  if(v>=.25) return "Meaningful contribution";
+  if(v>0) return "Smaller measured contribution";
+  return "Near-zero in this briefing series";
+}
+function renderTable(){
+  const q=search.value.toLowerCase().trim(), f=filter.value;
+  rows.innerHTML="";
+  unique.filter(d=>(!q||d[0].toLowerCase().includes(q))&&(f==="all"||d[1]===f)).forEach(d=>{
+    const tr=document.createElement("tr");
+    tr.innerHTML=`<td><b>${d[0]}</b></td><td>${d[1]}</td><td>${d[2].toFixed(2)}%</td><td><span class="pill">${interpretation(d[2])}</span></td>`;
+    rows.appendChild(tr);
+  });
+}
+search.addEventListener("input",renderTable); filter.addEventListener("change",renderTable);
+function refreshData(next){
+  ACTIVE_DATA = next.filter(d=>Number.isFinite(d[2]) && !SKIP_PLACES.has(d[0]));
+  unique = [...new Map(ACTIVE_DATA.map(d=>[d[0],d])).values()].sort((a,b)=>b[2]-a[2]);
+  document.getElementById("reportedCount").textContent=unique.length;
+  renderTable();
+  drawCountry("10");
+}
+document.getElementById("reportedCount").textContent=unique.length;
+renderTable();
+function fitCanvas(canvas, ratio=2){
+  const dpr=Math.max(1,window.devicePixelRatio||1);
+  const rect=canvas.getBoundingClientRect();
+  canvas.width=Math.max(1,Math.floor(rect.width*dpr));
+  canvas.height=Math.max(1,Math.floor(rect.width/ratio*dpr));
+  const c=canvas.getContext("2d"); c.setTransform(dpr,0,0,dpr,0,0); return c;
+}
+function drawRegion(){
+ const c=document.getElementById("regionChart"),ctx=fitCanvas(c,1.8),w=c.clientWidth,h=c.clientHeight;
+ ctx.clearRect(0,0,w,h);
+ const left=150,right=45,top=38,row=55,max=85;
+ ctx.font="11px Space Mono, monospace";
+ REGIONS.forEach((d,i)=>{
+   const y=top+i*row;
+   ctx.fillStyle="#333";ctx.fillText(d[0],18,y+12);
+   ctx.fillStyle="#d1d1cc";ctx.fillRect(left,y,w-left-right,22);
+   ctx.fillStyle="#ff641f";ctx.fillRect(left,y,(w-left-right)*(d[1]/max),22);
+   ctx.fillStyle="#151515";ctx.fillText(d[1].toFixed(2)+"%",left+8+(w-left-right)*(d[1]/max),y+15);
+ });
+ ctx.fillStyle="#777";ctx.font="9px Space Mono, monospace";ctx.fillText("SHARE OF GLOBAL ENVIRONMENTAL-EMISSION INVENTORY / 2026 BRIEFING",18,h-12);
+}
+function drawCountry(topN="10"){
+ const c=document.getElementById("countryChart");
+ const data=topN==="all"?unique:unique.slice(0,Number(topN));
+ const rowH=30, needed=Math.max(360,data.length*rowH+60);
+ c.style.width="100%";
+ c.style.height=needed+"px";
+ c.width=780;c.height=needed;
+ const ctx=c.getContext("2d");ctx.clearRect(0,0,c.width,c.height);
+ const left=190,max=Math.max(...data.map(d=>d[2]),0.01),barW=520;
+ ctx.font="10px Space Mono, monospace";
+ data.forEach((d,i)=>{
+   const y=35+i*rowH;
+   ctx.fillStyle="#2d2d2d";ctx.fillText(d[0].slice(0,25),10,y+10);
+   ctx.fillStyle="#d0d0cb";ctx.fillRect(left,y,barW,12);
+   ctx.fillStyle="#ff641f";ctx.fillRect(left,y,barW*(d[2]/max),12);
+   ctx.fillStyle="#151515";ctx.fillText(d[2].toFixed(2)+"%",left+barW+10,y+10);
+ });
+ ctx.fillStyle="#777";ctx.font="9px Space Mono, monospace";ctx.fillText("SORTED HIGH → LOW / SOURCE-REPORTED VALUES",10,needed-15);
+}
+drawRegion();drawCountry("10");
+async function loadFullOWID(){
+  const url="https://ourworldindata.org/grapher/plastic-pollution.csv?v=1&csvType=full&useColumnShortNames=false";
+  try{
+    const res=await fetch(url,{cache:"no-store"});
+    if(!res.ok) throw new Error("network");
+    const text=await res.text();
+    const lines=text.replace(/\r/g,"").trim().split("\n");
+    const head=lines.shift().split(",");
+    const entity=head.findIndex(x=>x.toLowerCase()==="entity");
+    const year=head.findIndex(x=>x.toLowerCase()==="year");
+    const value=head.findIndex(x=>x.toLowerCase().includes("plastic"));
+    if(entity<0||year<0||value<0) throw new Error("schema");
+    const raw=[];
+    let world=0;
+    for(const line of lines){
+      const parts=line.split(",");
+      const name=parts[entity];
+      const y=Number(parts[year]), v=Number(parts[value]);
+      if(y===2020 && name && Number.isFinite(v)){
+        if(name==="World") world=v;
+        else raw.push([name,v]);
+      }
+    }
+    if(!world) world=52106292;
+    const parsed=raw.filter(d=>!SKIP_PLACES.has(d[0]) && !/\(UN M49\)|income countries|World|Earth/.test(d[0]))
+      .map(d=>[d[0],inferRegion(d[0]),+(100*d[1]/world).toFixed(2)]);
+    if(parsed.length>100){
+      refreshData(parsed);
+      const src=document.querySelector("#global .source");
+      if(src) src.textContent="Live inventory snapshot loaded from Our World in Data / Cottom et al. (2024), last updated January 2026 and shown as the 2026 briefing. If offline, the embedded fallback remains available.";
+    }
+  }catch(e){}
+}
+function inferRegion(name){
+  const a={
+    Asia:["India","China","Philippines","Malaysia","Indonesia","Vietnam","Bangladesh","Thailand","Japan","Pakistan","Sri Lanka","Turkey","Iran","Iraq","Saudi","UAE","Qatar","Kuwait","Oman","Yemen","Israel","Jordan","Lebanon","Syria","Palestine","Singapore","Brunei","Taiwan","Korea","Myanmar","Cambodia","East Timor","Timor","Hong Kong","Macau"],
+    Africa:["Nigeria","Cameroon","Ghana","Tanzania","Algeria","Morocco","Egypt","Kenya","Liberia","Sierra","South Africa","Mozambique","Madagascar","Gabon","Gambia","Senegal","Benin","Togo","Guinea","Congo","Cote","Ivory","Angola","Libya","Tunisia","Mauritania","Namibia","Somalia","Sudan","Djibouti","Eritrea","Seychelles","Mauritius","Comoros","Cape Verde"],
+    Europe:["Albania","Belgium","France","Germany","Greece","Croatia","Spain","Portugal","Italy","Norway","Sweden","Finland","Denmark","Iceland","Ireland","Netherlands","Poland","Romania","Bulgaria","Estonia","Latvia","Lithuania","Cyprus","Malta","Montenegro","Russia","Ukraine","Slovenia","Slovakia","Bosnia","United Kingdom","Monaco"],
+    "North America":["United States","Canada","Mexico","Guatemala","Haiti","Dominican","Panama","Costa Rica","Honduras","Nicaragua","El Salvador","Jamaica","Bahamas","Barbados","Grenada","Dominica","Saint Lucia","Saint Vincent","Puerto Rico","Cuba","Belize","Aruba","Guadeloupe","Martinique","Trinidad"],
+    "South America":["Brazil","Argentina","Chile","Peru","Colombia","Venezuela","Ecuador","Guyana","Suriname","Uruguay","Paraguay","Bolivia","French Guiana"],
+    Oceania:["Australia","New Zealand","Fiji","Papua","Samoa","Tonga","Solomon","Kiribati","Marshall","Micronesia","Palau","Vanuatu"],
+  };
+  for(const [r,names] of Object.entries(a)) if(names.some(x=>name.toLowerCase().includes(x.toLowerCase()))) return r;
+  return "Other";
+}
+window.addEventListener("resize",()=>{drawRegion();drawCountry(document.querySelector(".chip.active").dataset.top)});
+document.querySelectorAll(".chip").forEach(b=>b.addEventListener("click",()=>{
+ document.querySelectorAll(".chip").forEach(x=>x.classList.remove("active"));b.classList.add("active");drawCountry(b.dataset.top);
+}));
+const io=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add("show")}),{threshold:.08});
+document.querySelectorAll(".reveal").forEach(x=>io.observe(x));
+loadFullOWID();
+
+/* TRACE assistant */
+const root=document.getElementById("assistRoot");
+const log=document.getElementById("assistLog");
+const form=document.getElementById("assistForm");
+const input=document.getElementById("assistInput");
+const suggestBox=document.getElementById("assistSuggest");
+const statusEl=document.querySelector(".assist-head small");
+const SUGGEST=["Top 10 countries","What does this measure?","Tell me about India","Why coastal cities?","How can cities help?"];
+let busy=false;
+function setStatus(t,busyFlag){
+  if(!statusEl) return;
+  statusEl.textContent=t;
+  statusEl.classList.toggle("busy",!!busyFlag);
+}
+function openAssist(){root.classList.add("open");setTimeout(()=>input.focus(),50)}
+function closeAssist(){root.classList.remove("open")}
+document.getElementById("assistFab").addEventListener("click",()=>{root.classList.contains("open")?closeAssist():openAssist()});
+document.getElementById("assistClose").addEventListener("click",closeAssist);
+document.getElementById("assistCloseFoot").addEventListener("click",closeAssist);
+document.addEventListener("keydown",e=>{
+  if(e.key==="Escape" && root.classList.contains("open")) closeAssist();
+});
+const heroBtn=document.getElementById("openAssistHero");
+if(heroBtn) heroBtn.addEventListener("click",openAssist);
+function addMsg(text,who){
+  const d=document.createElement("div");
+  d.className="msg "+who; d.textContent=text; log.appendChild(d); log.scrollTop=log.scrollHeight;
+  return d;
+}
+function showSuggest(list){
+  suggestBox.innerHTML="";
+  (list||SUGGEST).forEach(s=>{
+    const b=document.createElement("button"); b.type="button"; b.textContent=s;
+    b.addEventListener("click",()=>ask(s)); suggestBox.appendChild(b);
+  });
+}
+function typing(){
+  const d=document.createElement("div"); d.className="typing"; d.id="typing";
+  d.innerHTML="<b></b><b></b><b></b>"; log.appendChild(d); log.scrollTop=log.scrollHeight;
+}
+function stopTyping(){const t=document.getElementById("typing"); if(t) t.remove()}
+function escapeRe(s){return s.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")}
+function findPlaces(q){
+  const n=" "+q.toLowerCase().replace(/[^a-z0-9&'. -]+/g," ")+" ";
+  const aliases=[["united states","United States"],["usa","United States"],["u.s.","United States"],["america","United States"],["united kingdom","United Kingdom"],["britain","United Kingdom"],["uk","United Kingdom"],["uae","United Arab Emirates"],["south korea","South Korea"],["ivory coast","Cote d'Ivoire"],["cote d ivoire","Cote d'Ivoire"],["philippines","Philippines"],["india","India"]];
+  const hits=[];
+  for(const [k,v] of aliases){
+    if(n.includes(" "+k+" ")){
+      const row=unique.find(d=>d[0]===v); if(row && !hits.some(h=>h[0]===row[0])) hits.push(row);
+    }
+  }
+  unique.forEach(d=>{
+    const name=d[0].toLowerCase();
+    if(name.length<4) return;
+    const re=new RegExp("(^|[^a-z])"+escapeRe(name)+("([^a-z]|$)"));
+    if(re.test(q.toLowerCase()) && !hits.some(h=>h[0]===d[0])) hits.push(d);
+  });
+  return hits;
+}
+function findCity(q){
+  const n=q.toLowerCase();
+  for(const [k,v] of Object.entries(CITIES)) if(n.includes(k)) return v;
+  return null;
+}
+function placeCard(place){
+  const rank=unique.findIndex(d=>d[0]===place[0])+1;
+  return `${place[0]} — ${place[1]}\n2026 briefing share (latest published inventory): ${place[2].toFixed(2)}%\nRank in this table: #${rank}\nReading: ${interpretation(place[2])}`;
+}
+function blocked(q){
+  return /(suicide|self[- ]?harm|kill myself|porn|sex|nude|nsfw|weapon|bomb|drug deal|how to make a gun)/i.test(q);
+}
+const FAQ=[
+  [/microplastic/, "Microplastics are plastic pieces smaller than 5 mm. They form when bottles, bags, tyres and fibres break down. This page’s country table is the latest published environmental-emission inventory shown as a 2026 briefing, so microplastics are a related problem but not the same number, so microplastics are a related problem but not the same number."],
+  [/garbage patch|great pacific|gyre/, "A garbage patch is a zone where currents gather floating debris. The best known is the Great Pacific Garbage Patch. Most ocean plastic still starts on land and travels by rivers first, which is the pathway this dashboard maps."],
+  [/how long|decompose|break down|lasts? in (the )?ocean/, "Different plastics last for different times. A bottle can stay in the environment for hundreds of years, slowly breaking into smaller pieces instead of truly disappearing. That is why stopping leakage now matters more than waiting for the ocean to clean itself."],
+  [/single[- ]use|bottle|bag|packaging/, "Single-use items — bottles, bags, wrappers — are a large part of leakage because they are light, used once, and easy to wash into drains. Cities can cut this with collection, refill systems, and keeping those items out of stormwater."],
+  [/recycle|recycling/, "Recycling helps only if the item is collected, clean enough, and has a buyer. A lot of ocean-bound plastic never reaches a recycling plant. Collection and drain control come first; recycling is the next loop after waste is captured."],
+  [/monsoon|rain|stormwater|drain/, "Rain is a moving belt. When streets flood, uncollected plastic rides runoff into drains, canals and rivers. Coastal cities with strong monsoons or storms therefore need extra collection just before and during wet months."],
+  [/river|waterway|canal|yangtze|ganges|ganga|pasig/, "A small set of rivers carries a large share of modelled ocean plastic. Waste enters those rivers from cities along the banks. Intercepting material in the river is useful; stopping it on land before the river is better."],
+  [/fish|turtle|whale|bird|animal|marine life|wildlife/, "Animals can eat plastic or get tangled in it. That is one reason leakage to the sea matters. This dashboard does not count injured animals; it maps where modelled waste is most likely to reach the ocean so people can act upstream."],
+  [/biodegradable|compostable|bioplastic/, "Some eco-labelled plastics only break down in special industrial conditions. In a river or on a beach they can still last a long time. Treat them like ordinary waste: collect them, do not assume the ocean will digest them."],
+  [/climate|carbon|warming/, "Plastic and climate are linked because making plastic uses fossil fuels, and open burning of waste adds emissions. This page measures ocean-emission share, not carbon. Both problems get better when less waste is created and more is collected."],
+  [/innovatex|iit|techfest|bombay|who made|this (site|page|app|project)/, "COAST//TRACE is a visual research prototype built for InnovateX at Techfest, IIT Bombay. It turns a global plastic-pollution dataset into a readable page with charts, a country explorer, coastal city cards and this assistant."],
+  [/2019|why that year|old data/, "This is the 2026 dashboard. Country shares come from the latest complete published inventory (updated on Our World in Data in January 2026). Earth Action separately estimates about 72 million tonnes mismanaged worldwide in 2026."],
+  [/not (a )?city|city score|bar on the card/, "City cards on this page are design examples. The orange bars are interface indicators, not lab measurements of that city’s beaches. The hard number sits at country level in the explorer."],
+  [/chart|graph|how (do|to) read/, "The left chart shows each region’s share of the latest published inventory on this 2026 dashboard. The right chart ranks countries. A long orange bar means a larger modelled share that year, not a live pollution sensor."],
+  [/search|explorer|table|filter/, "In Explorer, type a country name or pick a region. Each row shows the 2026 briefing share and a plain-language reading. You can also ask me the country name and I will look it up."],
+  [/student|school|what can kids|what can students/, "Students can map drains near school, run a dry-day vs rain-day litter count, choose reusable bottles, and present local photos next to this global chart. The global number is the briefing; the school street is the project."],
+  [/policy|government|law|ban/, "Bans, bottle-return schemes and producer-responsibility rules can cut leakage if collection actually happens. A law without bins and trucks does not stop a monsoon drain. Use the country signal, then inspect the local system."]
+];
+function answerLocal(qRaw){
+  const q=qRaw.toLowerCase().trim();
+  const places=findPlaces(q);
+  const city=findCity(q);
+  if(blocked(q)) return {ok:true,strong:true,text:"I cannot help with that. Ask me about plastic pollution, rivers, coasts, or a country in this dataset.", next:SUGGEST};
+
+  if(/^(hi|hello|hey|yo|sup|good morning|good evening|good afternoon)\b/.test(q)){
+    return {ok:true,strong:true,text:"Hello — TRACE is on. Ask anything about this page, a country share, a coastal city, rivers, recycling, or how plastic reaches the sea.", next:SUGGEST};
+  }
+  if(/who are you|what are you|your name|are you (an )?ai|are you a bot/.test(q)){
+    return {ok:true,strong:true,text:"I am TRACE, the assistant inside COAST//TRACE. I answer from the emission table on this 2026 page, from a built-in briefing, and from a short public encyclopedia lookup when you ask something wider.", next:SUGGEST};
+  }
+  if(/help|what can you|how do i use|commands|examples/.test(q)){
+    return {ok:true,strong:true,text:"Ask me almost anything on this topic, for example:\n• What is India’s share?\n• Compare India and China\n• Why do rivers matter?\n• What are microplastics?\n• How long does a bottle last?\n• What can students do?\n• Tell me about Manila\nIf I do not have a built-in note, I look the idea up and still tie it back to this dashboard.", next:SUGGEST};
+  }
+  if(/source|meijer|owid|our world|dataset|where.*data|method|measure|what does this|trust|uncertain|how.*(calculated|estimated)/.test(q)){
+    return {ok:true,strong:true,text:"This is the 2026 dashboard. Country shares come from the latest complete published inventory (Cottom et al. 2024 / Our World in Data, January 2026). Earth Action estimates about 72 million tonnes of plastic will be mismanaged into the environment in 2026. Ocean leakage is still estimated at about 1–2 million tonnes a year.\n\nIt is a model of mismanaged waste and river pathways — not a live beach camera. It focuses on larger floating items and has uncertainty. Use it to spot geographic signals, then study local drains, collection and rivers.", next:["Top 10 countries","Tell me about India","Why coastal cities?"]};
+  }
+  if(/how can (cities|we|people|i)|what can (i|we|cities)|solution|reduce|prevent|stop plastic|help the ocean|what should/.test(q)){
+    return {ok:true,strong:true,text:"A working sequence for coastal cities:\n1. Collect waste before it reaches drains.\n2. Watch rainfall — that is when plastic moves fastest.\n3. Catch material in rivers and canals before the sea.\n4. Cut single-use items and improve recycling.\n5. Design the plan from local evidence, not only a national percentage.\n\nThe country share shows where the global signal is strong. The city still needs its own collection map.", next:["Why coastal cities?","Tell me about Mumbai","What does this measure?"]};
+  }
+  if(/why coastal|coastal cit|moving ashore|why cities|why does it matter/.test(q)){
+    return {ok:true,strong:true,text:"Most ocean plastic starts on land. Cities pack people, packaging and rain into a small area. If collection fails, waterways become conveyor belts to the sea. Coastal cities sit at that last step, which is why this page moves from country signal to city systems.", next:["Tell me about Manila","How can cities help?","Top 10 countries"]};
+  }
+  if(/which region|regional share|asia share|africa share|who leads/.test(q) || ((/asia|africa|europe|oceania|north america|south america/.test(q)) && /share|percent|%|signal|region/.test(q))){
+    const lines=REGIONS.map(r=>"• "+r[0]+": "+r[1].toFixed(2)+"%").join("\n");
+    return {ok:true,strong:true,text:"2026 briefing — regional share of the latest published inventory:\n"+lines+"\n\nAsia is about 56% and Africa about 30% in the latest published inventory shown on this 2026 dashboard. These are environmental emissions, not a live ocean count.", next:["Top 10 countries","Tell me about the Philippines","What does this measure?"]};
+  }
+  if(/top\s*(10|ten|20|twenty)|highest|worst|biggest|leading countr|who emits|which country/.test(q)){
+    const n=/20|twenty/.test(q)?20:10;
+    const list=unique.slice(0,n).map((d,i)=>(i+1)+". "+d[0]+" — "+d[2].toFixed(2)+"% ("+d[1]+")").join("\n");
+    return {ok:true,strong:true,text:"Top "+n+" places on this 2026 briefing:\n"+list+"\n\nThis is a national pathway estimate, not a city cleanliness score.", next:["Tell me about the Philippines","What does this measure?","Why coastal cities?"]};
+  }
+  if((/compare|vs\b|versus|difference between/.test(q) || places.length>=2) && places.length>=2){
+    const lines=places.slice(0,3).map(d=>"• "+d[0]+" ("+d[1]+"): "+d[2].toFixed(2)+"% — "+interpretation(d[2])).join("\n");
+    return {ok:true,strong:true,text:"Side-by-side from the same 2026 briefing series:\n"+lines+"\n\nA higher share means a larger modelled contribution to global environmental emissions. It does not mean one city is dirtier than another.", next:["What does this measure?","Top 10 countries"]};
+  }
+  if(city){
+    const nat=unique.find(d=>d[0]===city.country);
+    return {ok:true,strong:true,text:city.city+" is a coastal-system example, not a measured city score.\n\n"+city.note+(nat?"\n\nCountry record:\n"+placeCard(nat):"")+"\n\nUse the city card to inspect drainage, collection and river mouths — not as a ranking.", next:["How can cities help?",city.country,"What does this measure?"]};
+  }
+  if(places.length===1 && (places[0][0].length>3 || /share|percent|rank|data|number|figure/.test(q) || q.split(/\s+/).length<=4)){
+    const place=places[0];
+    search.value=place[0]; filter.value="all"; renderTable();
+    return {ok:true,strong:true,text:placeCard(place)+"\n\nI also filtered the explorer table to this place. The percentage is a national share from the latest published inventory, shown on this 2026 dashboard — not a live city measurement.", next:["Top 10 countries","What does this measure?","Why coastal cities?"]};
+  }
+  for(const [re,text] of FAQ){
+    if(re.test(q)) return {ok:true,strong:true,text:text,next:SUGGEST};
+  }
+  if(/350|1–2|1-2 million|how much plastic|plastic waste generated|how much.*ocean/.test(q)){
+    return {ok:true,strong:true,text:"Scale check from this page:\n• About 350 million tonnes of plastic waste are generated worldwide each year.\n• About 1–2 million tonnes are estimated to reach the ocean.\n• That is roughly 0.5% of all plastic waste.\n• On this 2026 dashboard, Asia accounts for about 56% of the latest published environmental-emission inventory and Africa about 30%. Earth Action estimates about 72 million tonnes of plastic will be mismanaged into the environment in 2026.\n\nAsk a country name for its exact share.", next:SUGGEST};
+  }
+  if(/plastic|ocean|pollution|waste|river|coast|marine/.test(q)){
+    return {ok:true,strong:false,text:"From this dashboard: about 350 million tonnes of plastic waste are made each year, and about 1–2 million tonnes reach the ocean. Most of that journey starts on land, then uses drains and rivers. Ask a country name for its share, or ask a specific idea such as microplastics, recycling, or monsoon runoff.", next:SUGGEST};
+  }
+  return {ok:false,strong:false,text:"",next:SUGGEST};
+}
+function snapshotFacts(){
+  return unique.slice(0,12).map(d=>d[0]+" "+d[2].toFixed(2)+"%").join("; ");
+}
+async function fetchJSON(url,ms){
+  const ctrl=new AbortController();
+  const t=setTimeout(()=>ctrl.abort(),ms||8000);
+  try{
+    const res=await fetch(url,{signal:ctrl.signal});
+    if(!res.ok) throw new Error("http");
+    const ct=res.headers.get("content-type")||"";
+    if(ct.includes("application/json")) return await res.json();
+    return await res.text();
+  }finally{clearTimeout(t)}
+}
+function searchKeys(q){
+  const stop=new Set(["who","what","when","where","why","how","is","are","was","were","the","a","an","of","in","on","to","for","did","does","do","can","could","would","should","you","tell","me","about","please","define","explain","meaning","invented","invention","made","create","created"]);
+  const words=q.toLowerCase().replace(/[^a-z0-9\s-]/g," ").split(/\s+/).filter(w=>w && !stop.has(w));
+  const joined=words.join(" ").trim();
+  const last=words.filter(w=>w.length>3);
+  return [...new Set([q.trim(), joined, last.slice(-2).join(" "), last[last.length-1]||""])].filter(s=>s && s.length>2);
+}
+async function wikiAnswer(userText){
+  let title="", excerpt="";
+  for(const key of searchKeys(userText)){
+    try{
+      const data=await fetchJSON("https://en.wikipedia.org/w/rest.php/v1/search/page?limit=1&q="+encodeURIComponent(key),7000);
+      const page=data && data.pages && data.pages[0];
+      if(page && page.title){ title=page.title; excerpt=(page.excerpt||"").replace(/<[^>]+>/g," "); break; }
+    }catch(e){}
+    try{
+      const data=await fetchJSON("https://en.wikipedia.org/w/api.php?action=opensearch&limit=1&namespace=0&format=json&origin=*&search="+encodeURIComponent(key),7000);
+      if(data && data[1] && data[1][0]){ title=data[1][0]; excerpt=data[2] && data[2][0] || ""; break; }
+    }catch(e){}
+  }
+  if(!title) throw new Error("no title");
+  const sum=await fetchJSON("https://en.wikipedia.org/api/rest_v1/page/summary/"+encodeURIComponent(title),7000);
+  const extract=(sum && (sum.extract||sum.description))||excerpt;
+  if(!extract) throw new Error("empty");
+  return title+": "+extract.replace(/\s+/g," ").trim();
+}
+async function askLive(userText){
+  const prompt="You are TRACE, a student-safe assistant for the COAST//TRACE dashboard. Answer the question clearly in 4-8 short sentences. Prefer facts about plastic pollution, rivers, coasts, waste and this dataset. Dataset facts: 350M t plastic waste/year; 1-2M t to ocean; Asia ~56% of latest published inventory; Earth Action 2026 mismanaged ~72Mt; ocean input still ~1-2Mt/year; top records: "+snapshotFacts()+". No adult topics. Question: "+userText;
+  const url="https://text.pollinations.ai/"+encodeURIComponent(prompt)+"?model=openai&seed="+Date.now();
+  const text=String(await fetchJSON(url,8000)||"").trim();
+  if(!text || /api key|budget|queue full|"error"/i.test(text)) throw new Error("blocked");
+  return text.slice(0,1100);
+}
+async function ask(text){
+  const t=String(text||"").trim();
+  if(!t) return;
+  if(busy){
+    addMsg("One moment — finishing the last answer, then I will take this.", "bot");
+    const wait=()=>new Promise(r=>setTimeout(r,350));
+    for(let i=0;i<20 && busy;i++) await wait();
+    if(busy){ busy=false; stopTyping(); setStatus("COASTAL DATA ASSISTANT • ONLINE",false); input.disabled=false; }
+  }
+  busy=true;
+  addMsg(t,"user");
+  typing();
+  setStatus("THINKING…",true);
+  input.disabled=true;
+  try{
+    const local=answerLocal(t);
+    let final=local.strong?local:null;
+    if(!final){
+      const tries=[];
+      tries.push(askLive(t).then(text=>({ok:true,text,next:SUGGEST})));
+      tries.push(wikiAnswer(t).then(text=>({ok:true,text:text+"\n\nIf you want the dashboard view, ask me a country name or how plastic reaches the coast.",next:SUGGEST})));
+      final=await Promise.any(tries).catch(()=>null);
+    }
+    if(!final) final=local.ok?local:{ok:true,text:"I could not reach an outside source just now, but I can still answer from this page. Try a country (India, Philippines, Brazil), a topic (microplastics, rivers, recycling), or “what does this measure?”.",next:SUGGEST};
+    stopTyping();
+    addMsg(final.text,"bot");
+    showSuggest(final.next||SUGGEST);
+  }catch(err){
+    stopTyping();
+    addMsg("I am still here. Ask a country, a city, or a topic like microplastics, rivers or recycling.","bot");
+    showSuggest(SUGGEST);
+  }finally{
+    busy=false;
+    input.disabled=false;
+    setStatus("COASTAL DATA ASSISTANT • ONLINE",false);
+    input.focus();
+  }
+}
+function sendNow(){
+  const v=(input.value||"").trim();
+  if(!v){
+    input.focus();
+    if(!log.querySelector(".hint-empty")){
+      const d=document.createElement("div");
+      d.className="msg bot hint-empty";
+      d.textContent="Type a question first, then press GO. Try “India” or “What are microplastics?”.";
+      log.appendChild(d); log.scrollTop=log.scrollHeight;
+    }
+    return;
+  }
+  input.value="";
+  ask(v);
+}
+form.addEventListener("submit",e=>{
+  e.preventDefault();
+  e.stopPropagation();
+  sendNow();
+});
+document.getElementById("assistGo").addEventListener("click",e=>{
+  e.preventDefault();
+  e.stopPropagation();
+  sendNow();
+});
+input.addEventListener("keydown",e=>{
+  if(e.key==="Enter"){ e.preventDefault(); sendNow(); }
+});
+addMsg("TRACE is working. Ask a country, compare two places, or tap a chip below. I read the same numbers shown on this page.","bot");
+showSuggest(SUGGEST);
+setStatus("COASTAL DATA ASSISTANT • ONLINE",false);
+(function(){
+  const screen=document.getElementById("bootScreen");
+  function enterApp(){
+    if(!document.body.classList.contains("boot")) return;
+    document.body.classList.remove("boot");
+    if(screen){
+      screen.classList.add("off");
+      setTimeout(()=>screen.remove(),560);
+    }
+  }
+  const go=document.getElementById("bootEnter");
+  const skip=document.getElementById("bootSkip");
+  if(go) go.addEventListener("click",enterApp);
+  if(skip) skip.addEventListener("click",enterApp);
+  document.addEventListener("keydown",e=>{
+    if(!document.body.classList.contains("boot")) return;
+    if(e.key==="Enter" || e.key===" "){ e.preventDefault(); enterApp(); }
+  });
+})();
+</script>
+</body>
+</html>
